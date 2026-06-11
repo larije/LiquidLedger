@@ -1,0 +1,52 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Vehicle {
+  id              String      @id @default(cuid())
+  assignedDriver  String
+  plateNumber     String      @unique
+  propertyNumber  String
+  description     String
+  acquisitionDate DateTime
+  fuelType        String      // GASOLINE | DIESEL | PREMIUM_UNLEADED
+  tankCapacity    Float
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  fuelEntries     FuelEntry[]
+}
+
+model CashAdvance {
+  id          String      @id @default(cuid())
+  amount      Float
+  dateGranted DateTime
+  purpose     String
+  balance     Float
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  fuelEntries FuelEntry[]
+}
+
+model FuelEntry {
+  id            String      @id @default(cuid())
+  date          DateTime
+  vehicleId     String
+  vehicle       Vehicle     @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  cashAdvanceId String
+  cashAdvance   CashAdvance @relation(fields: [cashAdvanceId], references: [id])
+  odometer      Float
+  fuelType      String      // GASOLINE | DIESEL | PREMIUM_UNLEADED
+  hasEngineOil  Boolean     @default(false)
+  quantity      Float
+  unitPrice     Float
+  amount        Float
+  invoiceNumber String
+  remarks       String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+}

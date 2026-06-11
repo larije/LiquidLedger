@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+@layer utilities {
+  .sidebar-nav-item {
+    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors;
+  }
+  .sidebar-nav-item-active {
+    @apply bg-blue-700 text-white;
+  }
+  .sidebar-nav-item-inactive {
+    @apply text-blue-100 hover:bg-blue-700/60;
+  }
+}

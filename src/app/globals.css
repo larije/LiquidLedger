@@ -12,13 +12,85 @@ body {
 }
 
 @layer utilities {
+  /* Base nav item — shared layout, border-radius, and animation */
   .sidebar-nav-item {
-    @apply flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition:
+      background 220ms ease,
+      transform 220ms ease,
+      box-shadow 220ms ease,
+      color 220ms ease;
   }
+
+  /* Left accent bar — hidden by default, animated in for active state */
+  .sidebar-nav-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) scaleY(0);
+    width: 3px;
+    height: 60%;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 0 2px 2px 0;
+    transition: transform 220ms ease, opacity 220ms ease;
+    opacity: 0;
+  }
+
+  /* Active: subtle white overlay, left accent bar revealed, bolder text, soft shadow */
   .sidebar-nav-item-active {
-    @apply bg-blue-700 text-white;
+    background: rgba(255, 255, 255, 0.13);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.22),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1);
   }
+
+  .sidebar-nav-item-active::before {
+    transform: translateY(-50%) scaleY(1);
+    opacity: 1;
+  }
+
+  /* Inactive: dimmed blue-tinted text */
   .sidebar-nav-item-inactive {
-    @apply text-blue-100 hover:bg-blue-700/60;
+    color: rgba(147, 197, 253, 0.85);
+  }
+
+  /* Hover: lighter overlay + rightward nudge. Distinctly different from active. */
+  .sidebar-nav-item-inactive:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    transform: translateX(3px);
+  }
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background: white !important;
+    font-family: "Times New Roman", Times, serif;
+  }
+
+  /* Hide sidebar unconditionally — more reliable than Tailwind print:hidden */
+  aside {
+    display: none !important;
+  }
+
+  /* Remove sidebar offset from main */
+  main {
+    margin-left: 0 !important;
+    padding: 0 !important;
   }
 }

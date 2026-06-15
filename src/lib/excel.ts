@@ -3,6 +3,18 @@ import { format, parseISO, isDate } from "date-fns";
 import { PROVINCE_HEADER } from "./utils";
 import type { FuelEntryWithRelations, ConsumptionRow } from "@/types";
 import { FUEL_TYPE_LABELS } from "@/types";
+import fs from "fs";
+import path from "path";
+
+function addSealToSheet(wb: ExcelJS.Workbook, ws: ExcelJS.Worksheet): void {
+  const sealPath = path.join(process.cwd(), "public", "davao-del-norte-seal.png");
+  if (!fs.existsSync(sealPath)) return;
+  const imageId = wb.addImage({ base64: fs.readFileSync(sealPath).toString("base64"), extension: "png" });
+  ws.addImage(imageId, { tl: { col: 0, row: 0 }, ext: { width: 60, height: 60 } });
+  ws.getRow(1).height = 20;
+  ws.getRow(2).height = 20;
+  ws.getRow(3).height = 20;
+}
 
 function headerStyle(): Partial<ExcelJS.Style> {
   return {
@@ -41,6 +53,7 @@ export async function generateMasterLogExcel(
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Master Consumption Log");
+  addSealToSheet(wb, ws);
 
   ws.mergeCells("A1:K1");
   ws.getCell("A1").value = PROVINCE_HEADER.province.toUpperCase();
@@ -134,6 +147,7 @@ export async function generateAIRExcel(
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("AIR");
+  addSealToSheet(wb, ws);
 
   ws.mergeCells("A1:G1");
   ws.getCell("A1").value = PROVINCE_HEADER.province.toUpperCase();
@@ -211,6 +225,7 @@ export async function generateConsumptionExcel(
 ): Promise<Buffer> {
   const wb = new ExcelJS.Workbook();
   const ws = wb.addWorksheet("Consumption Report");
+  addSealToSheet(wb, ws);
 
   ws.mergeCells("A1:I1");
   ws.getCell("A1").value = PROVINCE_HEADER.province.toUpperCase();

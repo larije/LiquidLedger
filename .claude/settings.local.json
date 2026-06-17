@@ -3,7 +3,9 @@
     "allow": [
       "Bash(npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --yes --name liquidledger)",
       "PowerShell(Get-ChildItem \"d:\\\\liquidledger-app\" | ForEach-Object { Copy-Item $_.FullName \"d:\\\\LiquidLedger\\\\\" -Recurse -Force }; Write-Host \"Done\")",
-      "Bash(sed -i 's/async \\(tx: typeof prisma\\)/async \\(tx: any\\)/g' \"d:/LiquidLedger/src/app/api/fuel-entries/route.ts\" \"d:/LiquidLedger/src/app/api/fuel-entries/[id]/route.ts\" \"d:/LiquidLedger/src/app/api/fuel-entries/import/route.ts\" && echo \"Done\")"
+      "Bash(sed -i 's/async \\(tx: typeof prisma\\)/async \\(tx: any\\)/g' \"d:/LiquidLedger/src/app/api/fuel-entries/route.ts\" \"d:/LiquidLedger/src/app/api/fuel-entries/[id]/route.ts\" \"d:/LiquidLedger/src/app/api/fuel-entries/import/route.ts\" && echo \"Done\")",
+      "Bash(npx tsc *)",
+      "Bash(npx next *)"
     ],
     "additionalDirectories": [
       "d:\\LiquidLedger\\src\\app\\api\\fuel-entries\\[id]"

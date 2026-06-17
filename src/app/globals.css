@@ -1,18 +1,30 @@
 @import "tailwindcss";
 
+/* ── Design tokens ─────────────────────────────────────────────────── */
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --color-primary:        #2563EB;
+  --color-primary-dark:   #1E40AF;
+  --color-accent:         #10B981;
+  --color-bg:             #F8FAFC;
+  --color-card:           #FFFFFF;
+  --color-border:         #E5E7EB;
+  --color-text:           #111827;
+  --color-muted:          #6B7280;
+  --sidebar-width:        260px;
+  --sidebar-collapsed:     68px;
+  --header-height:         58px;
+  --radius-card:           16px;
+  --radius-btn:            12px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: system-ui, -apple-system, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
 }
 
 @layer utilities {
-  /* Base nav item — shared layout, border-radius, and animation */
+
+  /* ── Sidebar navigation items ──────────────────────────────────────── */
   .sidebar-nav-item {
     display: flex;
     align-items: center;
@@ -23,16 +35,12 @@ body {
     font-weight: 500;
     text-decoration: none;
     position: relative;
-    overflow: hidden;
     cursor: pointer;
-    transition:
-      background 220ms ease,
-      transform 220ms ease,
-      box-shadow 220ms ease,
-      color 220ms ease;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    overflow: hidden;
   }
 
-  /* Left accent bar — hidden by default, animated in for active state */
   .sidebar-nav-item::before {
     content: '';
     position: absolute;
@@ -41,20 +49,17 @@ body {
     transform: translateY(-50%) scaleY(0);
     width: 3px;
     height: 60%;
-    background: rgba(255, 255, 255, 0.9);
+    background: #FFE000;
     border-radius: 0 2px 2px 0;
-    transition: transform 220ms ease, opacity 220ms ease;
+    transition: transform 200ms ease;
     opacity: 0;
   }
 
-  /* Active: subtle white overlay, left accent bar revealed, bolder text, soft shadow */
   .sidebar-nav-item-active {
-    background: rgba(255, 255, 255, 0.13);
+    background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
     color: #ffffff;
     font-weight: 600;
-    box-shadow:
-      0 2px 8px rgba(0, 0, 0, 0.22),
-      inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.45);
   }
 
   .sidebar-nav-item-active::before {
@@ -62,19 +67,170 @@ body {
     opacity: 1;
   }
 
-  /* Inactive: dimmed blue-tinted text */
   .sidebar-nav-item-inactive {
-    color: rgba(147, 197, 253, 0.85);
+    color: #4B5563;
   }
 
-  /* Hover: lighter overlay + rightward nudge. Distinctly different from active. */
   .sidebar-nav-item-inactive:hover {
-    background: rgba(255, 255, 255, 0.07);
-    color: #ffffff;
+    background: #EFF6FF;
+    color: #1D4ED8;
     transform: translateX(3px);
+    box-shadow: inset 3px 0 0 #2563EB;
+  }
+
+  /* ── Card hover lift ───────────────────────────────────────────────── */
+  .card-lift {
+    transition: transform 250ms ease, box-shadow 250ms ease;
+  }
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 12px 32px rgba(15, 23, 42, 0.12),
+      0 4px 12px rgba(15, 23, 42, 0.06);
+  }
+  .card-lift:hover .stat-icon {
+    transform: scale(1.07);
+  }
+
+  /* ── Skeleton shimmer ──────────────────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+
+  /* ── Stat card ─────────────────────────────────────────────────────── */
+  .stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .stat-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  /* ── Glassmorphism ─────────────────────────────────────────────────── */
+  .glass {
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.55);
+  }
+
+  /* ── Page animation helpers ────────────────────────────────────────── */
+  .animate-fade-in {
+    animation: fade-in 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  .animate-slide-up {
+    animation: slide-up 1050ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  /* ── Stagger helpers ───────────────────────────────────────────────── */
+  .stagger-1 { animation-delay: 150ms; }
+  .stagger-2 { animation-delay: 320ms; }
+  .stagger-3 { animation-delay: 490ms; }
+  .stagger-4 { animation-delay: 660ms; }
+
+  /* ── Quick-link report card ────────────────────────────────────────── */
+  .report-card {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px;
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    background: #fff;
+    transition: all 200ms cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    cursor: pointer;
+    overflow: hidden;
+  }
+  .report-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 14px;
+    opacity: 0;
+    transition: opacity 200ms ease;
+    background: linear-gradient(135deg, rgba(37,99,235,0.04) 0%, transparent 100%);
+  }
+  .report-card:hover {
+    border-color: #93C5FD;
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px -6px rgba(37, 99, 235, 0.22);
+  }
+  .report-card:hover::after {
+    opacity: 1;
+  }
+  .report-card:hover .report-icon {
+    transform: scale(1.18) rotate(-6deg);
+  }
+  .report-icon {
+    transition: transform 280ms cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
   }
 }
 
+/* ── Keyframes ─────────────────────────────────────────────────────── */
+@keyframes skeleton-shimmer {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Toast & Modal keyframes ───────────────────────────────────────── */
+@keyframes toast-enter {
+  from { opacity: 0; transform: translateX(calc(100% + 1.5rem)); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes toast-exit {
+  from { opacity: 1; transform: translateX(0); }
+  to   { opacity: 0; transform: translateX(calc(100% + 1.5rem)); }
+}
+@keyframes modal-overlay-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modal-enter {
+  from { opacity: 0; transform: scale(0.95) translateY(-10px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes modal-exit {
+  from { opacity: 1; transform: scale(1) translateY(0); }
+  to   { opacity: 0; transform: scale(0.96) translateY(-6px); }
+}
+@keyframes progress-drain {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+/* ── Print ─────────────────────────────────────────────────────────── */
 @media print {
   body {
     -webkit-print-color-adjust: exact;
@@ -83,12 +239,11 @@ body {
     font-family: "Times New Roman", Times, serif;
   }
 
-  /* Hide sidebar unconditionally — more reliable than Tailwind print:hidden */
-  aside {
-    display: none !important;
-  }
+  /* Hide chrome — sidebar + new sticky header */
+  aside,
+  header.app-header { display: none !important; }
 
-  /* Remove sidebar offset from main */
+  /* Remove sidebar offset and padding from main */
   main {
     margin-left: 0 !important;
     padding: 0 !important;

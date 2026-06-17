@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import Badge from "@/components/ui/Badge";
 import VehicleForm from "@/components/vehicles/VehicleForm";
 import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { formatDate, formatNumber } from "@/lib/utils";
 import { FUEL_TYPE_LABELS } from "@/types";
 import type { Vehicle, FuelType } from "@/types";
@@ -18,7 +19,8 @@ export default function VehiclesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Vehicle | null>(null);
-  const { toast } = useToast();
+  const { toast }   = useToast();
+  const { confirm } = useConfirm();
 
   const fetch = useCallback(async () => {
     setLoading(true);
@@ -34,10 +36,21 @@ export default function VehiclesPage() {
   const openEdit = (v: Vehicle) => { setEditing(v); setModalOpen(true); };
 
   const handleDelete = async (id: string, driver: string) => {
-    if (!confirm(`Delete vehicle assigned to ${driver}? This will also delete all fuel entries.`)) return;
+    const ok = await confirm({
+      title: "Delete Vehicle?",
+      message: `You are about to permanently delete the vehicle assigned to ${driver}, along with all associated fuel entries.`,
+      details: "This action cannot be undone.",
+      variant: "danger",
+      confirmLabel: "Delete Vehicle",
+    });
+    if (!ok) return;
     const res = await window.fetch(`/api/vehicles/${id}`, { method: "DELETE" });
-    if (res.ok) { toast("success", "Vehicle deleted"); fetch(); }
-    else toast("error", "Failed to delete vehicle");
+    if (res.ok) {
+      toast("success", "Vehicle deleted", "The vehicle and its fuel entries have been removed.");
+      fetch();
+    } else {
+      toast("error", "Failed to delete vehicle", "An unexpected error occurred. Please try again.");
+    }
   };
 
   const handleSubmit = async (data: Partial<Vehicle>) => {
@@ -49,12 +62,12 @@ export default function VehiclesPage() {
       body: JSON.stringify(data),
     });
     if (res.ok) {
-      toast("success", editing ? "Vehicle updated" : "Vehicle added");
+      toast("success", editing ? "Vehicle updated" : "Vehicle added", "The record has been saved.");
       setModalOpen(false);
       fetch();
     } else {
-      const err = await res.json();
-      toast("error", err.error ?? "Failed to save");
+      const err = await res.json().catch(() => ({}));
+      toast("error", "Failed to save vehicle", err.error ?? "Please check your input and try again.");
     }
   };
 

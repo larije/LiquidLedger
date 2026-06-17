@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import Badge from "@/components/ui/Badge";
 import FuelEntryForm from "@/components/fuel-entries/FuelEntryForm";
 import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { formatCurrency, formatDate, formatNumber } from "@/lib/utils";
 import { FUEL_TYPE_LABELS } from "@/types";
 import type { FuelEntryWithRelations, FuelType } from "@/types";
@@ -18,7 +19,8 @@ export default function FuelEntriesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<FuelEntryWithRelations | null>(null);
-  const { toast } = useToast();
+  const { toast }   = useToast();
+  const { confirm } = useConfirm();
 
   const [filters, setFilters] = useState({ driver: "", plate: "", fuelType: "", from: "", to: "" });
 
@@ -44,15 +46,32 @@ export default function FuelEntriesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (res.ok) { toast("success", editing ? "Entry updated" : "Entry recorded"); setModalOpen(false); fetchEntries(); }
-    else { const e = await res.json(); toast("error", e.error ?? "Failed to save"); }
+    if (res.ok) {
+      toast("success", editing ? "Entry updated" : "Entry recorded", "The fuel entry has been saved.");
+      setModalOpen(false);
+      fetchEntries();
+    } else {
+      const e = await res.json().catch(() => ({}));
+      toast("error", "Failed to save entry", e.error ?? "Please check your input and try again.");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this fuel entry? The cash advance balance will be restored.")) return;
+    const ok = await confirm({
+      title: "Delete Fuel Entry?",
+      message: "You are about to permanently delete this fuel entry. The corresponding cash advance balance will be restored.",
+      details: "This action cannot be undone.",
+      variant: "danger",
+      confirmLabel: "Delete Entry",
+    });
+    if (!ok) return;
     const res = await window.fetch(`/api/fuel-entries/${id}`, { method: "DELETE" });
-    if (res.ok) { toast("success", "Entry deleted"); fetchEntries(); }
-    else toast("error", "Failed to delete");
+    if (res.ok) {
+      toast("success", "Entry deleted", "The cash advance balance has been restored.");
+      fetchEntries();
+    } else {
+      toast("error", "Failed to delete entry", "An unexpected error occurred. Please try again.");
+    }
   };
 
   const fuelBadge = (ft: FuelType) =>

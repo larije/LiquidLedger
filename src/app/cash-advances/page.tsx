@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import Modal from "@/components/ui/Modal";
 import CashAdvanceForm from "@/components/cash-advances/CashAdvanceForm";
 import { useToast } from "@/components/ui/Toast";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { formatCurrency, formatDate, formatDateLong, PROVINCE_HEADER } from "@/lib/utils";
 import type { CashAdvance } from "@/types";
 import { Plus, Pencil, Trash2, CreditCard, Printer } from "lucide-react";
@@ -42,7 +43,8 @@ export default function CashAdvancesPage() {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<CashAdvance | null>(null);
-  const { toast } = useToast();
+  const { toast }   = useToast();
+  const { confirm } = useConfirm();
 
   const fetchData = useCallback(async () => {
     setLoading(true);
@@ -60,15 +62,33 @@ export default function CashAdvancesPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-    if (res.ok) { toast("success", editing ? "Updated" : "Cash advance created"); setModalOpen(false); fetchData(); }
-    else toast("error", "Failed to save");
+    if (res.ok) {
+      toast("success", editing ? "Cash advance updated" : "Cash advance created", "The record has been saved.");
+      setModalOpen(false);
+      fetchData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast("error", "Failed to save", err.error ?? "Please check your input and try again.");
+    }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this cash advance? All linked fuel entries must be deleted first.")) return;
+    const ok = await confirm({
+      title: "Delete Cash Advance?",
+      message: "You are about to permanently delete this cash advance.",
+      details: "This action cannot be undone. All linked fuel entries must be removed first.",
+      variant: "danger",
+      confirmLabel: "Delete Cash Advance",
+    });
+    if (!ok) return;
     const res = await window.fetch(`/api/cash-advances/${id}`, { method: "DELETE" });
-    if (res.ok) { toast("success", "Deleted"); fetchData(); }
-    else toast("error", "Failed to delete");
+    if (res.ok) {
+      toast("success", "Cash advance deleted", "The record has been permanently removed.");
+      fetchData();
+    } else {
+      const err = await res.json().catch(() => ({}));
+      toast("error", "Unable to delete cash advance", err.error ?? "Please delete all associated fuel entries first.");
+    }
   };
 
   const pct = (a: CashAdvance) => Math.min(100, ((a.amount - a.balance) / a.amount) * 100);

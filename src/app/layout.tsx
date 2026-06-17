@@ -1,7 +1,14 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar";
 import { ToastProvider } from "@/components/ui/Toast";
+import { ConfirmDialogProvider } from "@/components/ui/ConfirmDialog";
+import LayoutShell from "@/components/layout/LayoutShell";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "LiquidLedger — PTO Fuel Liquidation",
@@ -10,13 +17,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="h-full">
-      <body className="h-full bg-slate-50">
+    <html lang="en" className={`h-full ${inter.className}`}>
+      <body className="h-full bg-[#F8FAFC]">
         <ToastProvider>
-          <Sidebar />
-          <main className="ml-[260px] min-h-screen p-6 print:ml-0 print:p-0">
-            {children}
-          </main>
+          <ConfirmDialogProvider>
+            <LayoutShell>{children}</LayoutShell>
+          </ConfirmDialogProvider>
         </ToastProvider>
       </body>
     </html>
